@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Projectile Motion Simulator</title>
+  <meta name="viewport" content="width=550, initial-scale=1" />
+<style>
+  body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(120deg, #ffffff 0%, #ffffff 100%);
+  margin: 0;
+  min-height: 100vh;
+}
+.container {
+  background: #ffffff;
+  max-width: 540px;
+  margin: 2em auto 1em auto;
+  border-radius: 1em;
+  box-shadow: 0 4px 32px rgba(60,60,90,.08);
+  padding: 2em 1.5em 1.5em 1.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+h1 {
+  margin-top: 0;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  color: #0b5dd1;
+  text-align: center;
+}
+.controls {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  margin-bottom: 1.5em;
+}
+.slider-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+label {
+  min-width: 120px;
+  font-weight: 500;
+  color: #222d42;
+  font-size: 1em;
+}
+input[type=range] {
+  flex: 1;
+  margin: 0 0.6em;
+  accent-color: #0b5dd1;
+  background: #e4e7ea;
+  border-radius: 8px;
+  outline: none;
+  height: 3px;
+}
+.slider-value {
+  min-width: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #454555;
+}
+select {
+  padding: 2px 8px;
+  border-radius: 5px;
+  border: 1px solid #d6d6eb;
+  background: #f7faff;
+  color: #263866;
+  font-size: 1em;
+  font-weight: 500;
+  margin-left: 0.7em;
+}
+.button-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 13px;
+    }
+    button {
+      font-size: 1em;
+      background: #14bde7;
+      color: #251620;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #233c4640;
+      transition: background 0.2s;
+    }
+    button:disabled {
+      background: #484d6b;
+      color: #b2c1cc;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      
+      color: #163d2a;
+    }
+.outputs {
+  width: 100%;
+  background: #f8fafd;
+  border-radius: 7px;
+  margin-top: 1em;
+  padding: 1em 1.2em;
+  font-size: 1.1em;
+  color: #20304e;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.canvas-container {
+  margin: 2em auto 0.5em auto;
+  background: #e4effe;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 540px;
+  max-width: 96vw;
+}
+canvas {
+  width: 500px;
+  height: 330px;
+  max-width: 90vw;
+  border-radius: 11px;
+  background: #fafdff;
+  border: 1.5px solid #d1ebfa;
+}
+.canvas-label-x, .canvas-label-y {
+  position: absolute;
+  font-size: 1em;
+  font-weight: 600;
+  color: #5a97bc;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: 0.01em;
+}
+.canvas-label-x { bottom: -0.1em; left: 79%; }
+.canvas-label-y { left: 1.5em; top: 0.1em; }
+@media (max-width: 650px) {
+  .container, .canvas-container {
+    max-width: 98vw;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+  }
+  canvas {
+    width: 92vw;
+    height: 56vw;
+    min-height: 170px;
+  }
+  .canvas-label-x { left: 75%; }
+}
+.readme-section {
+  max-width: 600px;
+  margin: 2em auto 1.4em auto;
+  background: #f0f0f0dc;
+  border-radius: 1em;
+  box-shadow: 0 1px 16px #d6e0f955;
+  padding: 1.5em 1.2em;
+  line-height: 1.7;
+  color: #263560;
+}
+.readme-section h2 {
+  color: #0b5dd1;
+  font-size: 1.2em;
+  margin-bottom: 0.2em;
+}
+.readme-section code {
+  background: #eef2fa;
+  color: #236191;
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 1em;
+}
+</style>
+</head>
+<body>
+    <button class="back-btn" style="margin-bottom:2em;">← Back to Dashboard</button>
+  <div class="container">
+    <h1>Projectile Motion Simulator</h1>
+    <div class="controls">
+      <div class="slider-group">
+        <label for="angleSlider">Launch Angle</label>
+        <input type="range" id="angleSlider" min="0" max="90" value="45">
+        <span class="slider-value" id="angleValue">45°</span>
+      </div>
+      <div class="slider-group">
+        <label for="velocitySlider">Initial Velocity</label>
+        <input type="range" id="velocitySlider" min="0" max="100" value="40">
+        <span class="slider-value" id="velocityValue">40 m/s</span>
+      </div>
+      <div class="slider-group">
+        <label for="gravitySelect">Gravity</label>
+      <select id="gravitySelect">
+  <option value="3.7">Mercury (3.7 m/s²)</option>
+  <option value="8.87">Venus (8.87 m/s²)</option>
+  <option value="9.8">Earth (9.8 m/s²)</option>
+  <option value="1.6">Moon (1.6 m/s²)</option>
+  <option value="3.7">Mars (3.7 m/s²)</option>
+  <option value="24.79">Jupiter (24.79 m/s²)</option>
+  <option value="10.44">Saturn (10.44 m/s²)</option>
+  <option value="8.87">Uranus (8.87 m/s²)</option>
+  <option value="11.15">Neptune (11.15 m/s²)</option>
+</select>
+      </div>
+      <div class="btn-row">
+        <button id="startBtn">Start Simulation</button>
+        <button id="resetBtn" class="btn-reset">Reset</button>
+      </div>
+    </div>
+    <div class="outputs">
+      <div><label>Maximum Height:</label> <span id="maxHeight">—</span> m</div>
+      <div><label>Time of Flight:</label> <span id="timeOfFlight">—</span> s</div>
+      <div><label>Range:</label> <span id="range">—</span> m</div>
+    </div>
+  </div>
+  <div class="canvas-container" style="position:relative;">
+    <canvas id="simCanvas" width="500" height="320"></canvas>
+    <span class="canvas-label-x">Distance (m)</span>
+    <span class="canvas-label-y">Height (m)</span>
+  </div>
+  <div class="readme-section">
+    <h2>Projectile Motion Simulator</h2>
+    <p>
+      <b>Projectile motion</b> describes the two-dimensional movement of an object under gravity, like a thrown ball. This simulator shows how angle, velocity, and gravity affect the projectile's path.
+    </p>
+    <b>Formulas Used:</b>
+    <pre>
+x = v × t × cos(θ)
+y = v × t × sin(θ) − ½ × g × t²
+    </pre>
+    <ul>
+      <li><b>Horizontal velocity</b> is constant.</li>
+      <li><b>Vertical motion</b> is affected by gravity.</li>
+      <li>The path is a <b>parabola</b>.</li>
+    </ul>
+  </div>
+ 
+  <script>
+    // DOM Elements
+const angleSlider = document.getElementById('angleSlider');
+const velocitySlider = document.getElementById('velocitySlider');
+const gravitySelect = document.getElementById('gravitySelect');
+const angleValue = document.getElementById('angleValue');
+const velocityValue = document.getElementById('velocityValue');
+const startBtn = document.getElementById('startBtn');
+const resetBtn = document.getElementById('resetBtn');
+const maxHeightOut = document.getElementById('maxHeight');
+const timeOfFlightOut = document.getElementById('timeOfFlight');
+const rangeOut = document.getElementById('range');
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+
+// State & Animation
+let angle = 45;
+let velocity = 40;
+let gravity = 9.8;
+let isSimulating = false;
+let animId = null;
+let points = [];
+let startTimestamp = null;
+
+// UI Sync
+function syncDisplay() {
+  angleValue.textContent = angleSlider.value + "°";
+  velocityValue.textContent = velocitySlider.value + " m/s";
+}
+angleSlider.oninput = function() {
+  angle = +this.value;
+  syncDisplay();
+}
+velocitySlider.oninput = function() {
+  velocity = +this.value;
+  syncDisplay();
+}
+gravitySelect.onchange = function() {
+  gravity = +this.value;
+}
+
+// Physics
+function toRad(deg) { return deg * Math.PI / 180; }
+function computeStats(v, angleDeg, g) {
+  let theta = toRad(angleDeg);
+  let vy = v * Math.sin(theta);
+  let vx = v * Math.cos(theta);
+  let t_flight = (vy <= 0) ? 0 : (2 * vy / g);
+  let h = (vy <= 0) ? 0 : ((vy ** 2) / (2 * g));
+  let r = vx * t_flight;
+  return { maxHeight: h, timeOfFlight: t_flight, range: r };
+}
+function updateStatsDisplay(stats) {
+  maxHeightOut.textContent = stats && stats.maxHeight ? stats.maxHeight.toFixed(2) : "—";
+  timeOfFlightOut.textContent = stats && stats.timeOfFlight ? stats.timeOfFlight.toFixed(2) : "—";
+  rangeOut.textContent = stats && stats.range ? stats.range.toFixed(2) : "—";
+}
+
+// Canvas helpers
+const minAxesVal = 8;   // Minimum value (meters) displayed for axes
+const minTick = 4;      // Minimum tick marks (grid divisions)
+
+function getScaling(stats) {
+  // Always reserve margins, always scale the plot to fit canvas
+  let mX = 50, mY = 32, w = canvas.width, h = canvas.height;
+
+  // Force a min value so grid never collapses, but let grid *area* always fill canvas
+  let range = Math.max(stats.range || 0, minAxesVal);
+  let maxHeight = Math.max(stats.maxHeight || 0, minAxesVal);
+
+  let scaleX = (w - 2 * mX) / range;
+  let scaleY = (h - 2 * mY) / maxHeight;
+  return { mX, mY, scaleX, scaleY, w, h, range, maxHeight };
+}
+
+function world2canvas(x, y, sc) {
+  let px = sc.mX + x * sc.scaleX;
+  let py = canvas.height - sc.mY - y * sc.scaleY;
+  return [px, py];
+}
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Draw dynamic grid lines that always fill canvas
+function drawGrid(sc) {
+  ctx.save();
+  // Minor grid lines
+  ctx.strokeStyle = "#eaeffa";
+  ctx.lineWidth = 1;
+  ctx.setLineDash([]);
+  let xMinor = Math.max(minTick, Math.round(sc.range / 2));
+  let yMinor = Math.max(minTick, Math.round(sc.maxHeight / 2));
+  for (let i = 1; i < xMinor; i++) {
+    let x_m = i * sc.range / xMinor;
+    let [px0, py0] = world2canvas(x_m, 0, sc);
+    let [px1, py1] = world2canvas(x_m, sc.maxHeight, sc);
+    ctx.beginPath();
+    ctx.moveTo(px0, py0);
+    ctx.lineTo(px1, py1 - 1);
+    ctx.stroke();
+  }
+  for (let i = 1; i < yMinor; i++) {
+    let y_m = i * sc.maxHeight / yMinor;
+    let [p0x, p0y] = world2canvas(0, y_m, sc);
+    let [p1x, p1y] = world2canvas(sc.range, y_m, sc);
+    ctx.beginPath();
+    ctx.moveTo(p0x, p0y);
+    ctx.lineTo(p1x, p1y);
+    ctx.stroke();
+  }
+
+  // Major grid lines (3 divisions = 4 ticks)
+  ctx.strokeStyle = "#c2d7ee";
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([7, 5]);
+  for (let i = 1; i < 4; i++) {
+    // Vertical
+    let x = sc.range * i / 4;
+    let [px0, py0] = world2canvas(x, 0, sc);
+    let [px1, py1] = world2canvas(x, sc.maxHeight, sc);
+    ctx.beginPath();
+    ctx.moveTo(px0, py0);
+    ctx.lineTo(px1, py1);
+    ctx.stroke();
+  }
+  for (let i = 1; i < 4; i++) {
+    // Horizontal
+    let y = sc.maxHeight * i / 4;
+    let [p0x, p0y] = world2canvas(0, y, sc);
+    let [p1x, p1y] = world2canvas(sc.range, y, sc);
+    ctx.beginPath();
+    ctx.moveTo(p0x, p0y);
+    ctx.lineTo(p1x, p1y);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawGround(sc) {
+  ctx.beginPath();
+  ctx.moveTo(sc.mX, canvas.height - sc.mY);
+  ctx.lineTo(canvas.width - sc.mX, canvas.height - sc.mY);
+  ctx.strokeStyle = "#aaa";
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+}
+function drawAxes(sc) {
+  ctx.save();
+  ctx.font = '12px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = "#568cc5";
+  for (let i = 0; i <= 4; i++) {
+    let y = sc.maxHeight * i / 4;
+    let label = Math.round(sc.maxHeight - y);
+    let [_, py] = world2canvas(0, sc.maxHeight - y, sc);
+    ctx.fillText(label, sc.mX - 6, py + 2);
+  }
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    let x = sc.range * i / 4;
+    let label = Math.round(x);
+    let [px, py] = world2canvas(x, 0, sc);
+    ctx.fillText(label, px, canvas.height - sc.mY + 15);
+  }
+  ctx.restore();
+}
+function drawBall(x, y, sc) {
+  let [px, py] = world2canvas(x, y, sc);
+  ctx.beginPath();
+  ctx.arc(px, py, 8, 0, 2 * Math.PI);
+  ctx.fillStyle = "#197aff";
+  ctx.strokeStyle = "#174580";
+  ctx.lineWidth = 1.4;
+  ctx.fill();
+  ctx.stroke();
+}
+function drawTrail(path, sc) {
+  ctx.save();
+  ctx.beginPath();
+  for (let i = 0; i < path.length; i++) {
+    let [px, py] = world2canvas(path[i].x, path[i].y, sc);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = "#26cdb2";
+  ctx.lineWidth = 2.2;
+  ctx.globalAlpha = 0.62;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// Simulation Functions
+function animate(stats, sc) {
+  let theta = toRad(angle), v = velocity, g = gravity;
+  let vx = v * Math.cos(theta), vy = v * Math.sin(theta), done = false;
+  points = [], startTimestamp = null, isSimulating = true;
+  function frame(ts) {
+    if (!startTimestamp) startTimestamp = ts;
+    let t = (ts - startTimestamp) / 1000;
+    let x = vx * t, y = vy * t - 0.5 * g * t * t;
+    if (y < 0) y = 0;
+    points.push({ x, y });
+    clearCanvas();
+    drawGrid(sc);
+    drawGround(sc);
+    drawAxes(sc);
+    if (points.length) drawTrail(points, sc);
+    drawBall(x, y, sc);
+    if (y <= 0 && t > 0) done = true;
+    if (!done && t < stats.timeOfFlight + 0.2) {
+      animId = requestAnimationFrame(frame);
+    } else {
+      isSimulating = false;
+      startBtn.disabled = false;
+      resetBtn.disabled = false;
+      updateStatsDisplay(stats);
+    }
+  }
+  animId = requestAnimationFrame(frame);
+}
+
+function startSimulation() {
+  if (isSimulating) return;
+  angle = +angleSlider.value;
+  velocity = +velocitySlider.value;
+  gravity = +gravitySelect.value;
+  startBtn.disabled = true;
+  resetBtn.disabled = true;
+  let stats = computeStats(velocity, angle, gravity);
+  let sc = getScaling(stats);
+  points = [];
+  updateStatsDisplay({});
+  animate(stats, sc);
+}
+
+function resetSimulation() {
+  if (animId) cancelAnimationFrame(animId);
+  isSimulating = false;
+  startBtn.disabled = false;
+  resetBtn.disabled = false;
+  angleSlider.value = 45;
+  velocitySlider.value = 40;
+  gravitySelect.value = 9.8;
+  angle = 45;
+  velocity = 40;
+  gravity = 9.8;
+  syncDisplay();
+  updateStatsDisplay({});
+  points = [];
+  let stats = computeStats(angle, velocity, gravity);
+  let sc = getScaling(stats);
+  clearCanvas();
+  drawGrid(sc);
+  drawGround(sc);
+  drawAxes(sc);
+}
+
+startBtn.onclick = startSimulation;
+resetBtn.onclick = resetSimulation;
+[angleSlider, velocitySlider, gravitySelect].forEach(el => {
+  el.addEventListener('input', () => { if (isSimulating) resetSimulation(); });
+});
+
+// Initial view
+syncDisplay();
+resetSimulation();
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var backBtn = document.querySelector('.back-btn');
+    if (backBtn) {
+      alert('Back button detected'); // should show when page loads!
+      backBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        alert('Going back to main.html'); // should show on click
+        window.location.href = '../index.html';
+      });
+    } else {
+      alert('Back button NOT detected'); // if you see this, your selector is wrong!
+    }
+  });
+  </script>
+</body>
+</html>
