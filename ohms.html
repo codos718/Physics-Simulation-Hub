@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ohm’s Law Simulator </title>
+  <style>
+    :root {
+  --primary: #225bf7;
+  --accent: #ffdb66;
+  --bg: #f2f7fb;
+  --panel: #fff;
+  --panel-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+  --bulb-off: #eed98c;
+  --bulb-bright: #fff390;
+  --bulb-shadow: 0 0 36px 6px #ffecada0;
+  --slider-thumb: #225bf7;
+  --slider-track: #e0e6f3;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #f2f7fb 70%, #d1e3fd 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.simulator-container {
+  background: var(--panel);
+  border-radius: 22px;
+  box-shadow: var(--panel-shadow);
+  max-width: 450px;
+  margin: 34px auto 24px auto;
+  padding: 30px 20px 30px 20px;
+}
+
+h1 {
+  color: var(--primary);
+  letter-spacing: 1px;
+  margin-bottom: 30px;
+  font-size: 2.1em;
+  text-align: center;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+}
+.slider-group label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.08em;
+  color: #28334d;
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+  width: 100%;
+  height: 8px;
+  background: var(--slider-track);
+  border-radius: 5px;
+  outline: none;
+  transition: background 0.2s;
+  margin-top: 5px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  box-shadow: 0 2px 8px #a6c2ff69;
+  cursor: pointer;
+  border: 2px solid #fff;
+  transition: background 0.23s;
+}
+input[type=range]:focus::-webkit-slider-thumb {
+  background: #1443ac;
+}
+
+input[type=range]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px #a6c2ff69;
+  cursor: pointer;
+  transition: background 0.23s;
+}
+input[type=range]:focus::-moz-range-thumb {
+  background: #1443ac;
+}
+input[type=range]::-ms-thumb { /* For old MS Edge */
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px #a6c2ff69;
+  cursor: pointer;
+}
+
+input[type=range]::-ms-fill-lower {
+  background: var(--slider-track);
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0 10px 0;
+  font-size: 1.11em;
+  gap: 6px;
+  margin-bottom: 5px;
+  color: #223354;
+}
+
+.results strong {
+  color: var(--primary);
+}
+
+.warning {
+  color: #e64036;
+  font-weight: bold;
+  min-height: 22px;
+  padding-top: 5px;
+}
+
+.circuit-visual {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  margin: 28px 0 18px 0;
+  gap: 5px;
+  min-height: 110px;
+  position: relative;
+}
+
+/* Battery visualization */
+.battery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 46px;
+  flex-shrink: 0;
+}
+.bat-text {
+  font-size: 0.9em;
+  color: #777;
+  margin-bottom: 2px;
+}
+.bat-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.bat-terminal {
+  width: 24px;
+  height: 6px;
+  background: #555;
+  border-radius: 3px 3px 0 0;
+}
+.bat-body {
+  width: 24px;
+  height: 36px;
+  background: linear-gradient(135deg, #225bf7 80%, #364fbb 100%);
+  border-radius: 0 0 6px 6px;
+  border-bottom: 3px solid #b8c7ef;
+  position: relative;
+}
+
+.wire {
+  width: 32px;
+  height: 4px;
+  background: #bbb;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+.wire-1, .wire-2, .wire-3 { background: #bbb; }
+
+.current-path {
+  width: 120px;
+  height: 18px;
+  position: relative;
+}
+
+/* Resistor (rectangle with label) */
+.resistor {
+  width: 38px;
+  height: 28px;
+  background: repeating-linear-gradient(135deg, #ffdb66 0 7px, #f6c844 7px 14px);
+  border: 2px solid #a38c29;
+  border-radius: 6px;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.res-label {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ab7d18;
+  font-weight: bold;
+  font-size: 1.07em;
+  letter-spacing: 1px;
+  opacity: 0.88;
+}
+
+.bulb-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 6px;
+  margin-right: 8px;
+}
+.bulb {
+  width: 50px;
+  height: 50px;
+  background: var(--bulb-off);
+  border-radius: 50%;
+  border: 3px solid #efd46d;
+  margin-bottom: 3px;
+  box-shadow: 0 0 15px 4px #faf6c450;
+  transition:
+    background 0.18s,
+    box-shadow 0.2s,
+    border-color 0.16s,
+    opacity 0.2s;
+  opacity: 0.5;
+}
+.bulb-label {
+  font-size: 0.91em;
+  color: #7a7c6b;
+}
+
+button#reset-btn {
+  margin: 15px auto 0 auto;
+  display: block;
+  padding: 9px 33px;
+  font-size: 1.09em;
+  font-weight: 600;
+  background: linear-gradient(90deg,#225bf7 80%, #3975fd 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 1px 7px rgba(34,91,247,0.08);
+  cursor: pointer;
+  transition: background 0.18s, transform 0.1s;
+}
+button#reset-btn:hover {
+  background: linear-gradient(90deg,#1654bd 80%, #3975fd 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.physics-explanation {
+  background: #f4f8fe;
+  border-radius: 12px;
+  margin-top: 26px;
+  padding: 17px 15px 12px 15px;
+  color: #363c4d;
+  font-size: 1.02em;
+  box-shadow: 0 1px 7px #bfdaff1a;
+}
+.physics-explanation h2 { color: #225bf7; margin-top: 0; margin-bottom: 9px; font-size: 1.12em; }
+.physics-explanation strong { color: #1443ac; }
+.physics-explanation p { margin-top: 5px; margin-bottom: 9px; }
+
+.button-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 13px;
+    }
+    button {
+      font-size: 1em;
+      background: #14bde7;
+      color: #251620;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #233c4640;
+      transition: background 0.2s;
+    }
+    button:disabled {
+      background: #484d6b;
+      color: #b2c1cc;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      
+      color: #163d2a;
+    }
+/* Responsive design */
+@media (max-width: 650px) {
+  .simulator-container {
+    max-width: 98vw;
+    padding: 8vw 3vw 5vw 3vw;
+  }
+  .circuit-visual { flex-wrap: wrap; min-height: 140px;}
+  .bulb-group, .resistor, .battery { margin-bottom: 6px; }
+}
+  </style>
+</head>
+<body>
+     <button class="back-btn" style="margin-bottom:2em;">← Back to Dashboard</button>
+  <main class="simulator-container">
+    <h1>Ohm’s Law Simulator </h1>
+
+    <section class="controls">
+      <div class="slider-group">
+        <label for="voltage">
+          Voltage (V)
+          <span id="voltage-value">50</span>
+        </label>
+        <input type="range" id="voltage" min="0" max="100" value="50">
+      </div>
+      <div class="slider-group">
+        <label for="resistance">
+          Resistance (Ω)
+          <span id="resistance-value">50</span>
+        </label>
+        <input type="range" id="resistance" min="0" max="100" value="50">
+      </div>
+    </section>
+
+    <section class="results">
+      <div>
+        <strong>Current (I):</strong>
+        <span id="current-display">1.00</span> A
+      </div>
+      <div>
+        <strong>Power (P):</strong>
+        <span id="power-display">50.00</span> W
+      </div>
+      <div id="warning" class="warning"></div>
+    </section>
+
+    <section class="circuit-visual">
+      <div class="battery">
+        <div class="bat-text">Battery</div>
+        <div class="bat-icon">
+          <div class="bat-terminal"></div>
+          <div class="bat-body"></div>
+        </div>
+      </div>
+      <div class="wire wire-1"></div>
+      <div class="current-path">
+        <canvas id="current-animation" width="120" height="18" aria-hidden="true"></canvas>
+      </div>
+      <div class="resistor">
+        <div class="res-label">R</div>
+      </div>
+      <div class="wire wire-2"></div>
+      <div class="bulb-group">
+        <div class="bulb" id="bulb"></div>
+        <div class="bulb-label">Bulb</div>
+      </div>
+      <div class="wire wire-3"></div>
+    </section>
+
+    <button id="reset-btn">Reset</button>
+
+    <section class="physics-explanation">
+      <h2>Ohm’s Law</h2>
+      <p>
+        Ohm’s Law describes the relationship between voltage, current, and resistance in an electrical circuit.
+      </p>
+      <p>
+        <strong>Formula:</strong><br>
+        V = I × R
+      </p>
+      <p>
+        <strong>Meaning:</strong><br>
+        • Increasing voltage increases current<br>
+        • Increasing resistance decreases current
+      </p>
+      <p>
+        <strong>Example:</strong><br>
+        If you connect a 9V battery to a 3Ω resistor, the current will be:<br>
+        I = V / R = 9V / 3Ω = 3A
+      </p>
+    </section>
+  </main>
+  
+ <script>
+  // Ohm's Law Simulator
+// All UI and animation logic in this file.
+
+const voltageSlider = document.getElementById('voltage');
+const resistanceSlider = document.getElementById('resistance');
+const voltageValue = document.getElementById('voltage-value');
+const resistanceValue = document.getElementById('resistance-value');
+const currentDisplay = document.getElementById('current-display') || document.getElementById('current-display') || document.querySelector("#current-display");
+const powerDisplay = document.getElementById('power-display');
+const warning = document.getElementById('warning');
+const resetBtn = document.getElementById('reset-btn');
+const bulb = document.getElementById('bulb');
+const canvas = document.getElementById('current-animation');
+
+let animFrame = null;
+let dotOffset = 0;
+
+// Default values
+const V_DEFAULT = 50;
+const R_DEFAULT = 50;
+
+// Prevent divide by zero
+const R_MIN = 1e-8;
+
+// For animation
+const DOTS = 8;
+const DOT_SPACING = 120 / DOTS;
+const DOT_RADIUS = 3.4;
+
+// Update all UI based on controls
+function updateAll(noAnim = false) {
+  const V = parseInt(voltageSlider.value, 10);
+  const R = parseInt(resistanceSlider.value, 10);
+  voltageValue.textContent = V;
+  resistanceValue.textContent = R;
+
+  // Short circuit handling
+  if (R === 0) {
+    currentDisplay.textContent = "--";
+    powerDisplay.textContent = "--";
+    warning.textContent = "⚠ Short Circuit!";
+    updateBulb(0);
+    stopAnimation();
+    clearCanvas();
+    return;
+  }
+  warning.textContent = "";
+
+  const I = V / R;
+  const P = V * I;
+  currentDisplay.textContent = I.toFixed(2);
+  powerDisplay.textContent = P.toFixed(2);
+
+  updateBulb(I);
+
+  // For animation, set speed proportional to current (cap speed for very large I)
+  startAnimation(I);
+}
+
+// Update bulb glow/brightness based on current
+function updateBulb(current) {
+  // Clamp effect: if current < ~0.2, dim
+  let maxCurrent = 3; // at I>=3A, max glow
+  let scale = Math.min(current / maxCurrent, 1.0);
+
+  // Bulb color & shadow interpolate
+  let color, border, shadow, opacity;
+  if (scale < 0.04) {
+    color = "#d6ce99";
+    border = "#cdb938";
+    shadow = "0 0 13px 2px #eeeebb44";
+    opacity = 0.23;
+  } else if (scale < 0.45) {
+    color = "#eed98c";
+    border = "#efd46d";
+    shadow = "0 0 18px 3px #fcf3c355";
+    opacity = 0.48 + 0.45 * scale;
+  } else {
+    color = "#fffbc3";
+    border = "#ffeb78";
+    shadow = "0 0 36px 8px #fffbc3b0, 0 0 80px 13px #fffcb170";
+    opacity = 0.82 + 0.15 * scale;
+  }
+  bulb.style.background = color;
+  bulb.style.borderColor = border;
+  bulb.style.boxShadow = shadow;
+  bulb.style.opacity = opacity;
+}
+
+// "Flowing current" line animation (canvas)
+function startAnimation(current) {
+  // Remove previous animation
+  stopAnimation();
+
+  // For visualization, speed (pixels per frame) set by current: min 0.6, max ~5
+  let minSpeed = 0.6;
+  let maxSpeed = 5.6;
+  let cappedCurrent = Math.min(current, 10.0);
+  let speed = minSpeed + ((Math.max(cappedCurrent, 0) / 10.0) * (maxSpeed - minSpeed));
+  
+  // If current is very low, show slow dots
+  if (current < 0.12) speed = 0.3;
+
+  function animate() {
+    drawCurrentDots(dotOffset);
+    dotOffset = (dotOffset + speed) % DOT_SPACING;
+    animFrame = requestAnimationFrame(animate);
+  }
+  animFrame = requestAnimationFrame(animate);
+}
+
+function stopAnimation() {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  animFrame = null;
+}
+
+function clearCanvas() {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawCurrentDots(offset = 0) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Line
+  ctx.save();
+  ctx.strokeStyle = "#56a4e8";
+  ctx.lineWidth = 8;
+  ctx.lineCap = "round";
+  ctx.shadowColor = "#acdeff";
+  ctx.shadowBlur = 4;
+  ctx.beginPath();
+  ctx.moveTo(7, canvas.height/2);
+  ctx.lineTo(canvas.width-7, canvas.height/2);
+  ctx.stroke();
+  ctx.restore();
+
+  // Dots (moving)
+  ctx.fillStyle = "#1e84ff";
+  for (let i = 0; i < DOTS; i++) {
+    let x = offset + i * DOT_SPACING;
+    if (x > canvas.width) x -= canvas.width;
+    ctx.beginPath();
+    ctx.arc(x, canvas.height/2, DOT_RADIUS, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+// Reset all UI to defaults
+function resetAll() {
+  voltageSlider.value = V_DEFAULT;
+  resistanceSlider.value = R_DEFAULT;
+  updateAll();
+}
+
+// Event Listeners
+voltageSlider.addEventListener('input', () => updateAll());
+resistanceSlider.addEventListener('input', () => updateAll());
+resetBtn.addEventListener('click', resetAll);
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+  resetAll();
+});
+
+window.addEventListener('beforeunload', () => stopAnimation());
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var backBtn = document.querySelector('.back-btn');
+    if (backBtn) {
+      alert('Back button detected'); // should show when page loads!
+      backBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        alert('Going back to main.html'); // should show on click
+        window.location.href = 'index.html';
+      });
+    } else {
+      alert('Back button NOT detected'); // if you see this, your selector is wrong!
+    }
+  });
+</script>
+</body>
+</html>
