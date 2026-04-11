@@ -37,11 +37,6 @@ Visual representation of sound waves, helping users understand frequency and amp
 # Magnetic Force Simulator
 Simulates attraction and repulsion between magnetic poles and shows how distance affects force.
 
-
-
-# OpticsLab – Light Simulation
-Explores how light behaves when it reflects, refracts, or passes through different materials.
-
 # Explosion Physics Sandbox
 A fun particle-based simulation showing how energy spreads outward during an explosion.
 
