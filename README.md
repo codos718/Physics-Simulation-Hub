@@ -6,6 +6,14 @@ The project contains 9 different simulations covering major topics in physics su
 # Included Simulations
  # Projectile Motion Simulator
 A simple simulator to explore how objects move under gravity. Users can adjust angle and velocity to see how range and height change.
+* Functionality:
+- When user clicks "Start": Animate the projectile in a curved path
+- When user clicks "Reset": Clear canvas and reset values
+  * What this teaches
+  Based on Projectile Motion Simulator
+- It shows how throwing something works in real life
+- how angle + speed + gravity control the motion
+
 
 # Ohm’s Law Simulator
 Demonstrates the relationship between voltage, current, and resistance using interactive controls.
@@ -15,9 +23,12 @@ Shows how gravitational force affects motion and how objects attract each other 
 
 # Sound Wave Visualizer
 Visual representation of sound waves, helping users understand frequency and amplitude in a simple way.
+ 
 
 # Magnetic Force Simulator
 Simulates attraction and repulsion between magnetic poles and shows how distance affects force.
+
+
 
 # OpticsLab – Light Simulation
 Explores how light behaves when it reflects, refracts, or passes through different materials.
