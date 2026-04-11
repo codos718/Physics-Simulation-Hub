@@ -17,6 +17,15 @@ A simple simulator to explore how objects move under gravity. Users can adjust a
 
 # Ohm’s Law Simulator
 Demonstrates the relationship between voltage, current, and resistance using interactive controls.
+* User Interaction
+  - A battery icon
+  - A resistor (box or shape)
+  - A bulb (circle)
+  - Bulb brightness changes based on current:
+  - Higher current → brighter bulb
+  - Lower current → dim bulb
+- Current flow animation speed increases with current
+
 
 # Gravity Simulator
 Shows how gravitational force affects motion and how objects attract each other in space-like conditions.
