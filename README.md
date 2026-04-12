@@ -64,6 +64,17 @@ Visual representation of sound waves, helping users understand frequency and amp
 
 # Magnetic Force Simulator
 Simulates attraction and repulsion between magnetic poles and shows how distance affects force.
+*Interaction
+- Allow dragging magnets
+- Click to add particles
+- Change pole type dynamically
+
+*What this teaches
+Based on-Magnetic Force you see
+Attraction vs repulsion
+Distance effect
+Field interaction
+
 
 # Explosion Physics Sandbox
 A fun particle-based simulation showing how energy spreads outward during an explosion.
