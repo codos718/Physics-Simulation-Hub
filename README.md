@@ -47,6 +47,19 @@ Shows how gravitational force affects motion and how objects attract each other 
 
 # Sound Wave Visualizer
 Visual representation of sound waves, helping users understand frequency and amplitude in a simple way.
+* User Interaction:
+- Sliders update wave in real time
+- Changes should reflect instantly
+- No reload required
+
+* What this teaches
+  Based on-Wave Motion
+
+*You see
+- Frequency - pitch
+- Amplitude -energy
+- Wave behavior in real time
+
  
 
 # Magnetic Force Simulator
