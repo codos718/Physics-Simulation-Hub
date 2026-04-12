@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Magnetic Force Simulator </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>body {
+    background: linear-gradient(120deg, #ffffff 0%,);
+    color: #000000;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 26px 8px 38px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+h1 {
+    text-align: center;
+    font-size: 2.1rem;
+    letter-spacing: 0.06em;
+    margin-top: 0;
+    margin-bottom: 1.1em;
+    color: #000000;
+    text-shadow: 0 0 12px #51b8ff55;
+}
+.controls {
+    background: #d8d9dd;
+    padding: 17px 18px 8px 18px;
+    border-radius: 17px;
+    box-shadow: 0 2px 13px #2866f944;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 97%;
+    max-width: 560px;
+    margin-bottom: 18px;
+}
+.sliders {
+    display: flex;
+    gap: 22px;
+    width: 100%;
+    margin-bottom: 9px;
+}
+.sliders > div {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+label {
+    font-size: 1.07em;
+    color: #000000;
+    margin-bottom: 5px;
+    margin-top: 3px;
+    font-weight: 500;
+}
+input[type="range"] {
+    accent-color: #398bff;
+    width: 100%;
+    height: 5px;
+    background: #303b70;
+    border-radius: 4px;
+    margin: 0 0 7px 0;
+}
+.selectors {
+    margin-bottom: 9px;
+}
+select {
+    font-size: 1em;
+    padding: 2.5px 9px;
+    background: #000000;
+    color: #cfefff;
+    border-radius: 6px;
+    border: 1px solid #54c2ff55;
+    margin-left: 11px;
+}
+.button-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 13px;
+    }
+    button {
+      font-size: 1em;
+      background: #14bde7;
+      color: #251620;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #233c4640;
+      transition: background 0.2s;
+    }
+    button:disabled {
+      background: #484d6b;
+      color: #b2c1cc;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      
+      color: #163d2a;
+    }
+.output {
+    margin-top: 15px;
+    margin-bottom: 14px;
+    font-size: 1.13em;
+    color: #000000;
+    letter-spacing: .02em;
+    background: #00000047;
+    padding: 8px 23px;
+    border-radius: 7px;
+    min-height: 29px;
+}
+.canvas-bar {
+    background: #081734;
+    border-radius: 20px;
+    box-shadow: 0 2px 16px #13b0fa35;
+    overflow: hidden;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 5px 13px 5px;
+    width: 720px;
+    max-width: 99vw;
+}
+#sim-canvas {
+    background: #06122e;
+    border: 2px solid #19aaffaa;
+    border-radius: 14px;
+    display: block;
+    width: 700px;
+    height: 350px;
+    max-width: 98vw;
+}
+.explanation {
+    background: #e4e5e8;
+    margin-top: 27px;
+    padding: 17px 20px 15px 23px;
+    border-radius: 13px;
+    box-shadow: 0 3px 14px #358fcf34;
+    width: 500px;
+    max-width: 97vw;
+    color: #000000;
+    font-size: 1.03em;
+}
+.explanation h2 {
+    margin-top: 0;
+    color: #000000;
+    font-size: 1.21em;
+}
+.explanation ul {
+    margin-left: 23px;
+    margin-top: 6px;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 900px) {
+    .canvas-bar, #sim-canvas, .controls, .explanation {
+        width: 99vw !important;
+        max-width: 100vw !important;
+    }
+}</style>
+</head>
+<body>
+        <button class="back-btn" style="margin-bottom:2em;">← Back to Dashboard</button>
+
+    <div class="container">
+        <h1>Magnetic Force Simulator <span role="img" aria-label="magnet"></span></h1>
+        <section class="controls">
+            <div class="sliders">
+                <div>
+                    <label for="mag-strength">Magnetic Strength: <span id="strength-value"></span></label>
+                    <input type="range" id="mag-strength" min="1" max="10" step="0.1" value="5">
+                </div>
+                <div>
+                    <label for="distance-slider">Distance: <span id="distance-value"></span> px</label>
+                    <input type="range" id="distance-slider" min="60" max="340" step="1" value="200">
+                </div>
+            </div>
+            <div class="selectors">
+                <label for="mode-select">Mode:</label>
+                <select id="mode-select">
+                    <option value="pole">Pole Interaction (N/S poles)</option>
+                    <option value="charge">Moving Charge</option>
+                </select>
+            </div>
+            <div class="button-group">
+                <button id="start-btn">Start Simulation</button>
+                <button id="reset-btn">Reset</button>
+            </div>
+        </section>
+        <section class="output">
+            <span id="output-type">Attraction</span> |
+            <span id="output-force">Force: --</span> |
+            <span id="output-distance">Distance: --</span>
+        </section>
+        <div class="canvas-bar">
+            <canvas id="sim-canvas" width="700" height="350"></canvas>
+        </div>
+        <section class="explanation">
+            <h2>Magnetic Force</h2>
+            <p>
+                Magnetic force is the attraction or repulsion between magnetic poles.
+            </p>
+            <ul>
+                <li><strong>Opposite poles</strong> attract</li>
+                <li><strong>Same poles</strong> repel</li>
+                <li><strong>Moving charges</strong> are affected by magnetic fields (their path curves)</li>
+            </ul>
+            <p>
+                Move the sliders and interact with magnets/particles to explore!
+            </p>
+        </section>
+    </div>
+    <script>
+        // --- main.js ---
+// ====== CANVAS/STATE ======
+const canvas = document.getElementById("sim-canvas");
+const ctx = canvas.getContext("2d");
+
+// --- Controls
+const magStrengthSlider = document.getElementById("mag-strength");
+const distanceSlider = document.getElementById("distance-slider");
+const modeSelect = document.getElementById("mode-select");
+const startBtn = document.getElementById("start-btn");
+const resetBtn = document.getElementById("reset-btn");
+
+const strengthValue = document.getElementById("strength-value");
+const distanceValue = document.getElementById("distance-value");
+const outputType = document.getElementById("output-type");
+const outputForce = document.getElementById("output-force");
+const outputDistance = document.getElementById("output-distance");
+
+let mode = modeSelect.value; // "pole" or "charge"
+let running = false;
+let animationId = null;
+
+// --- Magnet positions & state (pixels)
+const magSize = 60;
+let magnet1 = { x: 180, y: canvas.height / 2, type: "N", dragging: false, dragOffset: {x:0, y:0} };
+let magnet2 = { x: 180+parseInt(distanceSlider.value), y: canvas.height / 2, type: "S", dragging: false, dragOffset: {x:0, y:0} };
+
+// --- For "Moving Charge" mode
+let particles = []; // {x, y, vx, vy, charge, color}
+
+// ===== UTILS =====
+function clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
+
+// ============ DRAWING ============
+function drawMagnets() {
+    // Magnet 1
+    ctx.save();
+    ctx.translate(magnet1.x, magnet1.y);
+    drawSingleMagnet(magnet1.type, true);
+    ctx.restore();
+
+    // Magnet 2
+    ctx.save();
+    ctx.translate(magnet2.x, magnet2.y);
+    drawSingleMagnet(magnet2.type, false);
+    ctx.restore();
+
+    // Field lines (optional)
+    drawFieldLines();
+}
+
+function drawSingleMagnet(type, isFirst) {
+    // Body color
+    let grad = ctx.createLinearGradient(-magSize/2,0,magSize/2,0);
+    grad.addColorStop(0, "#6af3ef");
+    grad.addColorStop(1, "#f14e7d");
+
+    ctx.fillStyle = grad;
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.roundRect(-magSize/2, -magSize/3.5, magSize, magSize/1.7, 14);
+    ctx.fill();
+    ctx.stroke();
+
+    // N/S halves
+    ctx.fillStyle = (type === "N") ? "#54ebff" : "#ff7fae";
+    ctx.fillRect(-magSize/2, -magSize/3.5, magSize/2, magSize/1.7);
+    ctx.fillStyle = (type === "S") ? "#54ebff" : "#ff7fae";
+    ctx.fillRect(0, -magSize/3.5, magSize/2, magSize/1.7);
+
+    // Polarity label
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 1.2em Segoe UI, Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "#3be5fe";
+    ctx.shadowBlur = 13;
+    ctx.fillText(type, 0, 0);
+    ctx.shadowBlur = 0;
+
+    // Outline active if dragging
+    if ((isFirst && magnet1.dragging) || (!isFirst && magnet2.dragging)) {
+        ctx.strokeStyle = "#ffe33a";
+        ctx.lineWidth = 4.7;
+        ctx.beginPath();
+        ctx.roundRect(-magSize/2-3, -magSize/3.5-3, magSize+6, magSize/1.7+6, 18);
+        ctx.stroke();
+    }
+}
+
+function drawFieldLines() {
+    // Simple cartoon between poles
+    let n = 4;
+    for (let i = 0; i < n; i++) {
+        let t = i / (n - 1);
+        let x1 = magnet1.x + (magSize / 2);
+        let y1 = magnet1.y + (t - 0.5) * (magSize/1.3);
+        let x2 = magnet2.x - (magSize / 2);
+        let y2 = magnet2.y + (t - 0.5) * (magSize/1.3);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        let mx = (x1 + x2) / 2;
+        let my = (y1 + y2) / 2 - 45 * (1 - Math.abs(0.5-t)*1.6); // curve
+        ctx.quadraticCurveTo(mx, my, x2, y2);
+        ctx.strokeStyle = "#23effa88";
+        ctx.lineWidth = 2.7-1.2*Math.abs(t-0.5);
+        ctx.setLineDash([12, 20]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+    }
+}
+
+function drawParticlesAndField() {
+    // Draw all particles
+    for (let p of particles) {
+        // Path
+        ctx.save();
+        ctx.strokeStyle = "#fff3";
+        ctx.lineWidth = 1.1;
+        if (p.trail && p.trail.length > 2) {
+            ctx.beginPath();
+            ctx.moveTo(p.trail[0].x, p.trail[0].y);
+            for (let pt of p.trail) ctx.lineTo(pt.x, pt.y);
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // Glowing dot
+        ctx.save();
+        ctx.shadowColor = p.charge>0 ? "#7dfc6f" : "#ff7fef";
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 11, 0, 2*Math.PI);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 0.9;
+        ctx.fill();
+        ctx.restore();
+
+        // Charge sign
+        ctx.save();
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 1.2em Segoe UI, Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(p.charge>0?"+":"−", p.x, p.y);
+        ctx.restore();
+    }
+}
+
+// Draw force arrow between N/S or between magnets
+function drawForceArrow() {
+    let dx = magnet2.x - magnet1.x, dy = magnet2.y - magnet1.y;
+    let dist = Math.sqrt(dx*dx + dy*dy);
+    let angle = Math.atan2(dy, dx);
+
+    // Position the arrow at midpoint between magnets, point direction of force
+    let mx = (magnet1.x + magnet2.x)/2, my = (magnet1.y + magnet2.y)/2;
+
+    // If Repulsion, reverse arrow
+    let poleType = (magnet1.type === magnet2.type) ? "repel" : "attract";
+    if (poleType === "repel") angle = angle+Math.PI;
+
+    // Arrow shaft
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(mx - 30*Math.cos(angle), my - 30*Math.sin(angle));
+    ctx.lineTo(mx + 30*Math.cos(angle), my + 30*Math.sin(angle));
+    ctx.strokeStyle = "#feff61";
+    ctx.lineWidth = 6;
+    ctx.shadowColor = "#fffa";
+    ctx.shadowBlur = 8;
+    ctx.stroke();
+
+    // Arrowhead
+    let a = angle, size = 14;
+    ctx.beginPath();
+    ctx.moveTo(mx + 30*Math.cos(a), my + 30*Math.sin(a));
+    ctx.lineTo(mx + 30*Math.cos(a) - size*Math.cos(a-Math.PI/6),
+               my + 30*Math.sin(a) - size*Math.sin(a-Math.PI/6));
+    ctx.lineTo(mx + 30*Math.cos(a) - size*Math.cos(a+Math.PI/6),
+               my + 30*Math.sin(a) - size*Math.sin(a+Math.PI/6));
+    ctx.lineTo(mx + 30*Math.cos(a), my + 30*Math.sin(a));
+    ctx.fillStyle = "#fffd72";
+    ctx.fill();
+    ctx.restore();
+}
+
+// ====== CALC PHYSICS ======
+function calculateForce(distance, strength) {
+    // F ∝ (strength1 * strength2) / (distance^2)
+    // For visual, just do: F = k * s^2 / (d^2), k=800
+    let k = 800;
+    let F = k * Math.pow(strength,2) / Math.pow(distance, 2);
+    F = clamp(F, 0, 99.9);
+    return F;
+}
+
+// For Moving Charge mode
+function calculateFieldAt(x, y) {
+    // Magnetic field between mag1 and mag2, vertical field only, left-to-right
+    let cx = (magnet1.x+magnet2.x)/2, cy = (magnet1.y + magnet2.y)/2;
+    let dx = magnet2.x - magnet1.x;
+    // For simplicity: uniform field between magnets, 0 elsewhere
+    if (x > Math.min(magnet1.x, magnet2.x)+35 && x < Math.max(magnet1.x, magnet2.x)-35
+      && Math.abs(y-cy)<110) {
+        // Field strength ∝ slider, direction N→S
+        let sign = magnet1.type === "N" ? 1 : -1; // N→S left-to-right
+        return sign * magStrengthSlider.value/6;
+    }
+    return 0;
+}
+
+// ====== SIMULATION UPDATE ======
+function updateSimulation() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    if (mode === "pole") {
+        drawMagnets();
+        drawForceArrow();
+        updateOutputs();
+    } else if (mode === "charge") {
+        drawMagnets();
+        drawParticlesAndField();
+        updateOutputs();
+        // Animate particles
+        for (let p of particles) {
+            // Lorentz force for moving charge: F = q*v×B, in 2D: curved path 
+            const B = calculateFieldAt(p.x, p.y);
+            // B is along Z, velocity in XY
+            let ax = 0, ay = 0;
+            if (B !== 0) {
+                // a = q * v × B (q=charge)
+                ax = p.charge * p.vy * B * 0.08;
+                ay = -p.charge * p.vx * B * 0.08;
+            }
+            p.vx += ax;
+            p.vy += ay;
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Add to trail
+            if (!p.trail) p.trail=[];
+            p.trail.push({x:p.x,y:p.y});
+            if (p.trail.length>60) p.trail.shift();
+        }
+        // Remove out-of-bounds particles
+        particles = particles.filter(p=>
+            p.x > 0 && p.x < canvas.width && p.y > 0 && p.y < canvas.height
+        );
+    }
+
+    // Animate!
+    if (running) animationId = requestAnimationFrame(updateSimulation);
+}
+
+// ===== Output Info =====
+function updateOutputs() {
+    if (mode === "pole") {
+        let d = Math.abs(magnet2.x-magnet1.x);
+        let F = calculateForce(d, magStrengthSlider.value);
+        let type = (magnet1.type===magnet2.type) ? "Repulsion" : "Attraction";
+        outputType.textContent = type;
+        outputForce.textContent = `Force: ${F.toFixed(2)}`;
+        outputDistance.textContent = `Distance: ${d}`;
+    } else if (mode === "charge") {
+        outputType.textContent = "Moving Charge";
+        outputForce.textContent = particles.length ? "Particles: "+particles.length : "No particles";
+        outputDistance.textContent = "";
+    }
+}
+
+// ==== DRAGGING MAGNETS ====
+let dragTarget = null;
+canvas.addEventListener('mousedown', function(e) {
+    if (mode !== "pole") return;
+    let rect = canvas.getBoundingClientRect();
+    let mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    // Hit test
+    for (let mag of [magnet2, magnet1]) {
+        if (mx >= mag.x - magSize/2 && mx <= mag.x + magSize/2 &&
+            my >= mag.y - magSize/2 && my <= mag.y + magSize/2) {
+            dragTarget = mag;
+            mag.dragging = true;
+            mag.dragOffset = { x: mx - mag.x, y: my - mag.y };
+            return;
+        }
+    }
+});
+canvas.addEventListener('mousemove', function(e) {
+    if (!dragTarget) return;
+    let rect = canvas.getBoundingClientRect();
+    let mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    dragTarget.x = clamp(mx - dragTarget.dragOffset.x, magSize/2, canvas.width-magSize/2);
+    dragTarget.y = clamp(my - dragTarget.dragOffset.y, magSize/2, canvas.height-magSize/2);
+    // Keep magnets horizontally aligned
+    magnet1.y = magnet2.y = (magnet1.y + magnet2.y)/2;
+    // Update slider value
+    let d = Math.abs(magnet2.x - magnet1.x);
+    distanceSlider.value = clamp(d, +distanceSlider.min, +distanceSlider.max);
+    distanceValue.textContent = Math.round(d);
+    updateSimulation();
+});
+window.addEventListener('mouseup', function() {
+    if (dragTarget) {
+        dragTarget.dragging = false;
+        dragTarget = null;
+    }
+});
+
+// ==== Change Pole Type On Click ====
+canvas.addEventListener('dblclick', function(e) {
+    if (mode !== "pole") return;
+    let rect = canvas.getBoundingClientRect();
+    let mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    for (let mag of [magnet1, magnet2]) {
+        if (mx >= mag.x - magSize/2 && mx <= mag.x + magSize/2 &&
+            my >= mag.y - magSize/2 && my <= mag.y + magSize/2) {
+            mag.type = mag.type==="N" ? "S" : "N";
+            updateSimulation();
+        }
+    }
+});
+
+// ==== Add Particle On Click (Moving Charge Mode) ====
+canvas.addEventListener('click', function(e) {
+    if (mode !== "charge") return;
+    let rect = canvas.getBoundingClientRect();
+    let mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    // Random charge
+    let charge = Math.random()<0.5?1:-1;
+    let color = charge>0 ? "#5df674" : "#f588ff";
+    let particle = {
+        x: mx, y: my,
+        vx: 2.5 * (charge>0?1:-1), vy: 0,
+        charge: charge,
+        color: color,
+        trail: []
+    };
+    particles.push(particle);
+    updateSimulation();
+});
+
+// ==== SLIDERS / CONTROLS ====
+magStrengthSlider.addEventListener('input', function() {
+    strengthValue.textContent = this.value;
+    updateSimulation();
+});
+distanceSlider.addEventListener('input', function() {
+    let d = +this.value;
+    distanceValue.textContent = d;
+    let center = canvas.width/2;
+    magnet1.x = center - d/2;
+    magnet2.x = center + d/2;
+    magnet1.y = magnet2.y = canvas.height/2;
+    updateSimulation();
+});
+modeSelect.addEventListener('change', function() {
+    mode = this.value;
+    if (mode === "pole") {
+        // Reset positions and poles
+        distanceSlider.disabled = false;
+        magStrengthSlider.disabled = false;
+        magnet1.type = "N";
+        magnet2.type = "S";
+        let center = canvas.width/2;
+        magnet1.x = center - (distanceSlider.value)/2;
+        magnet2.x = center + (distanceSlider.value)/2;
+        magnet1.y = magnet2.y = canvas.height/2;
+    } else {
+        // Moving charge
+        distanceSlider.disabled = true;
+        magStrengthSlider.disabled = false;
+    }
+    updateSimulation();
+});
+startBtn.addEventListener('click', function() {
+    if (running) return;
+    running = true;
+    startBtn.disabled = true;
+    updateSimulation();
+});
+resetBtn.addEventListener('click', function() {
+    running = false;
+    startBtn.disabled = false;
+    // Reset magnets
+    let center = canvas.width/2;
+    let d = +distanceSlider.value;
+    magnet1.x = center - d/2;    magnet2.x = center + d/2;
+    magnet1.y = magnet2.y = canvas.height/2;
+    magnet1.type = "N";          magnet2.type = "S";
+    particles = [];
+    mode = modeSelect.value;
+    updateSimulation();
+});
+
+// ==== OUTPUT: initial values
+function setInitialOutputs() {
+    strengthValue.textContent = magStrengthSlider.value;
+    distanceValue.textContent = distanceSlider.value;
+    updateOutputs();
+}
+setInitialOutputs();
+
+// ==== INITIAL DRAW ====
+window.onload = function() {
+    updateSimulation();
+};
+
+ document.addEventListener('DOMContentLoaded', function () {
+    var backBtn = document.querySelector('.back-btn');
+    if (backBtn) {
+      alert('Back button detected'); // should show when page loads!
+      backBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        alert('Going back to main.html'); // should show on click
+        window.location.href = 'index.html';
+      });
+    } else {
+      alert('Back button NOT detected'); // if you see this, your selector is wrong!
+    }
+  });
+    </script>
+</body>
+</html>
