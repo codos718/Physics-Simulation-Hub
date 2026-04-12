@@ -30,6 +30,21 @@ Demonstrates the relationship between voltage, current, and resistance using int
 # Gravity Simulator
 Shows how gravitational force affects motion and how objects attract each other in space-like conditions.
 
+ Output Display:
+- Show:
+  - Selected gravity value
+  - Falling time
+  - Final velocity
+
+. Visual Features:
+- Smooth falling animation
+- Ground line
+- Object changes speed based on gravity:
+  - Moon -slow fall
+  - Earth -normal
+  - Saturn -faster
+
+
 # Sound Wave Visualizer
 Visual representation of sound waves, helping users understand frequency and amplitude in a simple way.
  
