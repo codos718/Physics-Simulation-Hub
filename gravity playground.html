@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gravity Playground</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background: hsl(0, 0%, 100%);
+      color: #080c0c;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 2.1rem;
+      letter-spacing: .04em;
+      margin: 30px 0 9px 0;
+      text-align: center;
+    }
+    #main-container {
+      background: #f2f1f1;
+      border-radius: 14px;
+      box-shadow: 0 3px 32px #ffffff40;
+      width: 340px;
+      padding: 22px 20px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      margin-bottom: 25px;
+    }
+    label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0 0 0;
+      font-size: 1.03em;
+      gap: 5px;
+    }
+    select, input[type="number"] {
+      font-size: 1em;
+      padding: 3.5px 6px;
+      border-radius: 5px;
+      border: 1px solid #565982;
+      background: #252947;
+      color: #fafdff;
+      width: 88px;
+    }
+    .button-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 13px;
+    }
+    button {
+      font-size: 1em;
+      background: #14bde7;
+      color: #251620;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #233c4640;
+      transition: background 0.2s;
+    }
+    button:disabled {
+      background: #484d6b;
+      color: #b2c1cc;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      color: #163d2a;
+    }
+    #output {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 12px 12px 7px 16px;
+      font-family: monospace;
+      font-size: 1.07em;
+      margin-top: 13px;
+      min-height: 52px;
+      white-space: pre;
+    }
+    #canvas-container {
+      overflow: visible;
+      margin: 0 0 18px 0;
+      background: #e6e3e3;
+      border-radius: 12px;
+      box-shadow: 0 2px 14px rgba(255, 255, 255, 0.467);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 310px;
+      max-width: 96vw;
+      padding: 12px 0;
+    }
+    #sim-canvas {
+      background: #0f143c;
+      border: 2px solid #4382e6;
+      border-radius: 10px;
+      display: block;
+      margin: 0 auto;
+    }
+    #physics-explain {
+      background: #efefef;
+      margin: 18px 0 15px 0;
+      border-radius: 8px;
+      padding: 16px 14px;
+      font-size: 1em;
+      max-width: 480px;
+      width: 92vw;
+      line-height: 1.64;
+      color: #000000;
+    }
+    ul {
+      margin: 7px 0 11px 22px;
+    }
+    @media (max-width: 600px) {
+      #main-container, #canvas-container, #physics-explain {
+        width: 98vw;
+        min-width: unset;
+        max-width: 100vw;
+        padding-left: 6px;
+        padding-right: 6px;
+      }
+      #sim-canvas {
+        width: 95vw !important;
+        height: 200px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+    <button class="back-btn" style="margin-bottom:2em;">← Back to Dashboard</button>
+  <h1>Gravity Playground </h1>
+
+  <div id="main-container">
+    <label>
+      Select Planet:
+      <select id="planet-select"></select>
+    </label>
+    <label>
+      Object Mass (kg):
+      <input id="mass-input" type="number" min="0.1" step="0.1" value="2">
+    </label>
+    <label>
+      Drop Height (m):
+      <input id="height-input" type="number" min="0.1" step="0.1" value="7">
+    </label>
+    <div class="button-group">
+      <button id="drop-btn">Drop Object</button>
+      <button id="reset-btn" disabled>Reset</button>
+    </div>
+    <div id="output"></div>
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="sim-canvas" width="290" height="270"></canvas>
+  </div>
+
+  <div id="physics-explain">
+    <b>Gravitational Force</b>
+    <br><br>
+    <i>Gravity is the force that pulls objects toward a planet.</i>
+    <br><br>
+    Different planets have different gravity:
+    <ul>
+      <li>Mercury: 3.7 m/s²</li>
+      <li>Venus: 8.87 m/s²</li>
+      <li>Earth: 9.8 m/s²</li>
+      <li>Mars: 3.71 m/s²</li>
+      <li>Jupiter: 24.79 m/s²</li>
+      <li>Saturn: 10.44 m/s²</li>
+      <li>Uranus: 8.87 m/s²</li>
+      <li>Neptune: 11.15 m/s²</li>
+    </ul>
+    This affects how fast objects fall.<br><br>
+    <i>This playground lets you explore gravity by dropping objects on different planets!</i>
+  </div>
+
+  <script>
+    // --- main.js ---
+
+    // --- Element references
+    const canvas = document.getElementById('sim-canvas');
+    const ctx = canvas.getContext('2d');
+    const planetSelect = document.getElementById('planet-select');
+    const massInput = document.getElementById('mass-input');
+    const heightInput = document.getElementById('height-input');
+    const dropBtn = document.getElementById('drop-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const outputDiv = document.getElementById('output');
+
+    // --- Constants ---
+    // Planet data: name: {g, label, color}
+    const PLANETS = {
+      "Mercury": { g: 3.7, label: "Mercury", color: "#cdc5b4" },
+      "Venus":   { g: 8.87, label: "Venus", color: "#f0d39c" },
+      "Earth":   { g: 9.8, label: "Earth", color: "#71c6fe" },
+      "Mars":    { g: 3.71, label: "Mars", color: "#d68e5a" },
+      "Jupiter": { g: 24.79, label: "Jupiter", color: "#f7deb2" },
+      "Saturn":  { g: 10.44, label: "Saturn", color: "#f4e886" },
+      "Uranus":  { g: 8.87, label: "Uranus", color: "#b1e6e3" },
+      "Neptune": { g: 11.15, label: "Neptune", color: "#8bbbed" }
+    };
+
+    // Populate planet dropdown
+    planetSelect.innerHTML = ""; // Clear any default options
+    Object.entries(PLANETS).forEach(([key, data]) => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      // Emoji for each planet for fun!
+      let emoji = ({
+        Mercury: "", Venus: "", Earth: "", Mars: "",
+        Jupiter: "", Saturn: "", Uranus: "", Neptune: ""
+      })[key] || "";
+      opt.textContent = `${emoji} ${data.label} (${data.g} m/s²)`;
+      planetSelect.appendChild(opt);
+    });
+
+    // Drawing area settings
+    const groundY = canvas.height - 34;      // y-position (pixels) for ground line
+    const marginTop = 34;                    // Top margin in px for ball
+
+    // Ball State
+    let obj = {}; // {mass, y (pixels), v, color}
+    let simParams = {}; // {planet, g, dropHeight (meters), maxHeight}
+    let animationId = null;
+    let simulationState = "ready"; // "ready" | "falling" | "done"
+
+    // Converts: height in meters → y-position in canvas (pixels)
+    function getYPos(heightM, maxH) {
+      // highest point (drop) = marginTop;   lowest point (ground) = groundY
+      return marginTop + (maxH - heightM) * ((groundY - marginTop) / maxH);
+    }
+
+    function drawScene() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // Draw ground
+      ctx.beginPath();
+      ctx.moveTo(16, groundY + 0.5);
+      ctx.lineTo(canvas.width - 16, groundY + 0.5);
+      ctx.lineWidth = 3.2;
+      ctx.strokeStyle = "#4ee9b7";
+      ctx.stroke();
+
+      // Draw planet label
+      ctx.font = 'bold 1.07em Segoe UI, Arial, sans-serif';
+      ctx.fillStyle = '#fff7';
+      ctx.fillText(simParams.planet, 20, 28);
+
+      // Draw ball
+      ctx.beginPath();
+      ctx.arc(obj.x, obj.y, obj.radius, 0, 2 * Math.PI, false);
+      ctx.fillStyle = obj.color;
+      ctx.shadowColor = "#4382e6";
+      ctx.shadowBlur = 9;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "#fff8";
+      ctx.lineWidth = 1.1;
+      ctx.stroke();
+    }
+
+    function resetSim() {
+      if (animationId) cancelAnimationFrame(animationId);
+      let planet = planetSelect.value;
+      let g = PLANETS[planet].g;
+      let mass = Math.max(parseFloat(massInput.value) || 2, 0.1);
+      let dropHeight = Math.max(parseFloat(heightInput.value) || 1, 0.1); // meters
+      let maxH = Math.max(dropHeight, 2); // meter scaling
+      simParams = { planet, g, dropHeight, maxH };
+
+      obj = {
+        mass: mass,
+        radius: 21 + Math.pow(mass,1/3)*4,
+        x: canvas.width/2,
+        y: getYPos(dropHeight, maxH),
+        v: 0,
+        color: PLANETS[planet].color
+      };
+
+      simulationState = "ready";
+      outputDiv.innerHTML =
+        `Gravity (g): ${g} m/s²\nFalling time: ...\nFinal velocity: ...`;
+      drawScene();
+      dropBtn.disabled = false;
+      resetBtn.disabled = true;
+    }
+
+    function startSimulation() {
+      if (simulationState !== "ready") return;
+      simulationState = "falling";
+      dropBtn.disabled = true;
+      resetBtn.disabled = true;
+
+      // initial values
+      let y = simParams.dropHeight; // height above ground (m)
+      let v = 0;                    // velocity (m/s)
+      let t = 0;                    // time elapsed (s)
+      let dt = 1/60;                // time step (seconds)
+      const g = simParams.g;
+      const maxH = simParams.maxH;
+      let groundHeight = 0;         // meters above ground
+      let stop = false;
+
+      function animate() {
+        if (stop) return;
+        t += dt;
+        // v = v + g*dt; y = y - v*dt (since down is negative y in meters)
+        v = v + g * dt;
+        y = y - v * dt;
+
+        if (y <= groundHeight) { // Hit or passed ground
+          y = groundHeight;
+          stop = true;
+        }
+
+        // Convert y (meters above ground) into pixel y (canvas)
+        obj.y = getYPos(y, maxH);
+        drawScene();
+
+        if (!stop) {
+          animationId = requestAnimationFrame(animate);
+        } else {
+          // Use kinematic eqn: v^2 = u^2 + 2gh (u=0), so v = sqrt(2gh)
+          let finalV = Math.sqrt(2 * g * simParams.dropHeight);
+          outputDiv.innerHTML =
+            `Gravity (g): ${g} m/s²\n` +
+            `Falling time: ${t.toFixed(2)} s\n` +
+            `Final velocity: ${finalV.toFixed(2)} m/s`;
+          dropBtn.disabled = true;
+          resetBtn.disabled = false;
+        }
+      }
+      animationId = requestAnimationFrame(animate);
+    }
+
+    planetSelect.onchange = resetSim;
+    massInput.onchange = resetSim;
+    heightInput.onchange = resetSim;
+    dropBtn.onclick = startSimulation;
+    resetBtn.onclick = resetSim;
+    window.onload = resetSim;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var backBtn = document.querySelector('.back-btn');
+      if (backBtn) {
+        // alert('Back button detected'); // You can comment out alerts for production
+        backBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          // alert('Going back to main.html'); // You can comment out alerts for production
+          window.location.href = 'index.html';
+        });
+      } else {
+        // alert('Back button NOT detected');
+      }
+    });
+    // --- End main.js ---
+  </script>
+</body>
+</html>
