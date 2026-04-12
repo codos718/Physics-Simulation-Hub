@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sound Wave Visualizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>body {
+    background: linear-gradient(120deg, #ffffff 0%, #ffffff 100%);
+    color: #000000;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+.container {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 26px 10px 40px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+h1 {
+    text-align: center;
+    font-size: 2.35rem;
+    letter-spacing: 0.05em;
+    margin: 0 0 25px 0;
+    font-weight: 700;
+    color: #000000;
+}
+.controls {
+    width: 100%;
+    max-width: 650px;
+    margin: 0 0 22px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+}
+.slider-group {
+    display: flex;
+    flex-direction: column;
+    margin: 3px 0 2px 0;
+}
+label {
+    font-size: 1.09em;
+    color: #000000;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+input[type="range"] {
+    width: 99%;
+    margin-bottom: 3px;
+    accent-color: #39b0ff;
+    background: #2e3155;
+    border-radius: 4px;
+    height: 5px;
+}
+.button-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 13px;
+    }
+    button {
+      font-size: 1em;
+      background: #14bde7;
+      color: #251620;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #233c4640;
+      transition: background 0.2s;
+    }
+    button:disabled {
+      background: #484d6b;
+      color: #b2c1cc;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      
+      color: #163d2a;}
+.canvas-wrapper {
+    margin: 16px 0 0 0;
+    background: #192146;
+    border-radius: 20px;
+    box-shadow: 0 2px 20px #13c0fd26;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    padding: 14px 5px 12px 5px;
+    width: 820px;
+    max-width: 99vw;
+}
+#wave-canvas {
+    display: block;
+    background: #0a1126;
+    border: 2px solid #2de0ff88;
+    border-radius: 12px;
+    width: 800px;
+    max-width: 97vw;
+    height: 300px;
+}
+.explanation {
+    background: #e9eaee;
+    margin-top: 28px;
+    padding: 19px 25px 17px 25px;
+    border-radius: 14px;
+    width: 580px;
+    max-width: 97vw;
+    color: #000000;
+    font-size: 1.04em;
+}
+.explanation h2 {
+    margin-top: 0;
+    color: #006185;
+    font-size: 1.28em;
+}
+.explanation ul {
+    margin-left: 22px;
+    margin-top: 6px;
+    margin-bottom: 5px;
+}
+@media (max-width: 990px) {
+    .canvas-wrapper, #wave-canvas {
+        width: 98vw !important;
+        max-width: 100vw !important;
+    }
+    .explanation, .controls {
+        width: 99vw !important;
+        max-width: 100vw !important;
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+}</style>
+</head>
+<body>
+     <button class="back-btn" style="margin-bottom:2em;">← Back to Dashboard</button>
+    <div class="container">
+        <h1>Sound Wave Visualizer  </h1>
+        <div class="controls">
+            <div class="slider-group">
+                <label for="freq-slider">Frequency: <span id="freq-value"></span> Hz</label>
+                <input type="range" id="freq-slider" min="1" max="20" step="0.1" value="5">
+            </div>
+            <div class="slider-group">
+                <label for="amp-slider">Amplitude: <span id="amp-value"></span></label>
+                <input type="range" id="amp-slider" min="20" max="100" step="1" value="50">
+            </div>
+            <div class="slider-group">
+                <label for="speed-slider">Wave Speed: <span id="speed-value"></span></label>
+                <input type="range" id="speed-slider" min="0.5" max="4" step="0.01" value="1">
+            </div>
+            <div class="button-group">
+                <button id="start-btn">Start Animation</button>
+                <button id="pause-btn" disabled>Pause</button>
+                <button id="reset-btn">Reset</button>
+            </div>
+            <div class="button-group presets">
+                <button id="low-preset">Low Frequency (Bass)</button>
+                <button id="high-preset">High Frequency (Treble)</button>
+                <button id="sound-btn">Play Tone</button>
+            </div>
+        </div>
+        <div class="canvas-wrapper">
+            <canvas id="wave-canvas" width="800" height="300"></canvas>
+        </div>
+        <section class="explanation">
+            <h2>Sound Waves</h2>
+            <p>
+                Sound is a mechanical wave that travels through a medium by vibration.
+            </p>
+            <ul>
+                <li><strong>Frequency</strong>: Number of waves per second (Hz). Higher frequency = higher pitch.</li>
+                <li><strong>Amplitude</strong>: The strength/energy of the wave. Larger amplitude = louder sound.</li>
+                <li>Changing frequency and amplitude changes how the sound “looks” and “feels.”</li>
+            </ul>
+            <p>
+                Use the sliders above to see how sound waves work!
+            </p>
+        </section>
+    </div>
+    <script>// ---- main.js ----
+
+// ======== Canvas setup ========
+const canvas = document.getElementById('wave-canvas');
+const ctx = canvas.getContext('2d');
+
+// ======= Controls =======
+const freqSlider = document.getElementById('freq-slider');
+const ampSlider = document.getElementById('amp-slider');
+const speedSlider = document.getElementById('speed-slider');
+const freqValue = document.getElementById('freq-value');
+const ampValue = document.getElementById('amp-value');
+const speedValue = document.getElementById('speed-value');
+
+const startBtn = document.getElementById('start-btn');
+const pauseBtn = document.getElementById('pause-btn');
+const resetBtn = document.getElementById('reset-btn');
+const soundBtn = document.getElementById('sound-btn');
+const lowPresetBtn = document.getElementById('low-preset');
+const highPresetBtn = document.getElementById('high-preset');
+
+// ====== Parameters ======
+let frequency = parseFloat(freqSlider.value);     // Hz
+let amplitude = parseInt(ampSlider.value);        // px
+let waveSpeed = parseFloat(speedSlider.value);    // unitless
+let isAnimating = false;
+let phase = 0;                 // Used for wave animation
+let animationId = null;
+
+// Helper for updating display values
+function updateSliderValues() {
+    freqValue.textContent = frequency.toFixed(2);
+    ampValue.textContent = amplitude;
+    speedValue.textContent = waveSpeed.toFixed(2);
+}
+updateSliderValues();
+
+// ====== Drawing Functions ======
+function drawWave() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background (semi-glow)
+    const gradBg = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradBg.addColorStop(0, '#182049');
+    gradBg.addColorStop(1, '#161e43');
+    ctx.fillStyle = gradBg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+
+    // Create neon glowing line effect
+    ctx.shadowColor = "#22f6ff";
+    ctx.shadowBlur = 18;
+
+    // Main wave path
+    ctx.beginPath();
+
+    let centerY = canvas.height / 2;
+    let numPoints = 900;
+    let currPhase = phase;
+    for (let i = 0; i <= numPoints; i++) {
+        let x = (i / numPoints) * canvas.width;
+        let t = (frequency * (x / canvas.width) * 2 * Math.PI) + currPhase;
+        let y = centerY + amplitude * Math.sin(t);
+
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+
+        // --- Particles (optional) ---
+        if (i % 60 === 0) {
+            drawParticle(x, y, i);
+        }
+    }
+
+    // Neon gradient stroke
+    let neon = ctx.createLinearGradient(0,0,canvas.width,0);
+    neon.addColorStop(0, "#49eaff");
+    neon.addColorStop(0.5, "#d3fa41");
+    neon.addColorStop(1, "#7a60ff");
+    ctx.strokeStyle = neon;
+    ctx.lineWidth = 4.2;
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+// Tiny particles traveling along the wave
+function drawParticle(x, y, i) {
+    ctx.save();
+    ctx.shadowColor = "#fffbbe";
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, 2 * Math.PI);
+    ctx.fillStyle = i % 120 === 0 ? "#ff42d2" : "#53ffe3cc";
+    ctx.globalAlpha = 0.55;
+    ctx.fill();
+    ctx.restore();
+}
+
+// ========== Animation Logic ==========
+function updateWave(dt) {
+    // Move wave horizontally ("phase" shift)
+    phase += dt * waveSpeed * 2.5;
+    // Keep phase from getting huge
+    if (phase > 1000 * Math.PI) phase = 0;
+}
+
+function animate() {
+    if (!isAnimating) return;
+    // Use ~60ms step for dt (better speed for slower/faster)
+    updateWave(1/60);
+    drawWave();
+    animationId = requestAnimationFrame(animate);
+}
+
+// ============= Button/Slider Events =============
+
+freqSlider.addEventListener('input', function() {
+    frequency = parseFloat(this.value);
+    updateSliderValues();
+    drawWave();
+});
+ampSlider.addEventListener('input', function() {
+    amplitude = parseInt(this.value);
+    updateSliderValues();
+    drawWave();
+});
+speedSlider.addEventListener('input', function() {
+    waveSpeed = parseFloat(this.value);
+    updateSliderValues();
+    // If paused, update instantly
+    drawWave();
+});
+
+startBtn.addEventListener('click', () => {
+    if (!isAnimating) {
+        isAnimating = true;
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        animate();
+    }
+});
+pauseBtn.addEventListener('click', () => {
+    isAnimating = false;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    cancelAnimationFrame(animationId);
+});
+resetBtn.addEventListener('click', () => {
+    isAnimating = false;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    phase = 0;
+    drawWave();
+});
+
+// Preset modes
+lowPresetBtn.addEventListener('click', () => {
+    frequency = 2.0;
+    amplitude = 90;
+    waveSpeed = 0.7;
+    freqSlider.value = frequency;
+    ampSlider.value = amplitude;
+    speedSlider.value = waveSpeed;
+    updateSliderValues();
+    drawWave();
+});
+highPresetBtn.addEventListener('click', () => {
+    frequency = 15;
+    amplitude = 35;
+    waveSpeed = 2.8;
+    freqSlider.value = frequency;
+    ampSlider.value = amplitude;
+    speedSlider.value = waveSpeed;
+    updateSliderValues();
+    drawWave();
+});
+
+// --- Optional: Play Tone
+
+let audioCtx = null;
+let oscillator = null;
+
+soundBtn.addEventListener('click', () => {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Stop if already playing
+    if (oscillator) {
+        oscillator.stop();
+        oscillator.disconnect();
+        oscillator = null;
+        soundBtn.textContent = ' Play Tone';
+        return;
+    }
+
+    oscillator = audioCtx.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency * 25, audioCtx.currentTime);  // Map slider freq 1–20 to 25-500Hz
+
+    let gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(amplitude/100, audioCtx.currentTime); // Scales with amplitude
+
+    oscillator.connect(gain).connect(audioCtx.destination);
+    oscillator.start();
+
+    soundBtn.textContent = '■ Stop Tone';
+
+    // Stop sound if button pressed again or after 2s
+    function stop() {
+        if (oscillator) {
+            oscillator.stop();
+            oscillator.disconnect();
+            oscillator = null;
+            soundBtn.textContent = ' Play Tone';
+        }
+    }
+    soundBtn.addEventListener('click', stop, {once:true});
+    setTimeout(stop, 2000);
+});
+
+// ============= Initial Draw ==========
+window.onload = () => {
+    drawWave();
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    var backBtn = document.querySelector('.back-btn');
+    if (backBtn) {
+      alert('Back button detected'); // should show when page loads!
+      backBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        alert('Going back to main.html'); // should show on click
+        window.location.href = "index.html";
+      });
+    } else {
+      alert('Back button NOT detected'); // if you see this, your selector is wrong!
+    }
+  });
+</script>
+</body>
+</html>
