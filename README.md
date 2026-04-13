@@ -94,6 +94,14 @@ Based on-Black Hole
 
 # Chain Reaction Machine
 A sequence-based simulation where one event triggers another, showing how energy transfers through a system.
+This creates a recursive branching system where newly generated neutrons can trigger further reactions, effectively simulating a chain reaction. The animation loop is handled using (requestAnimationFrame) for smooth, frame-synced updates, while particle states are updated in real time.
+
+Core Mechanics
+Collision Detection: Uses Euclidean distance to detect neutron–nucleus interaction
+Particle System: Separate arrays for nuclei, neutrons, and fragments
+State Updates: Position, velocity, and lifecycle updated per frame
+Fission Logic: Randomized neutron emission (2–3) per event
+Energy Visualization: Fragment motion + glow effects simulate energy release
 
 # Purpose of the Project
 
