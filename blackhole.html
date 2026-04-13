@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Black Hole Simulator </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #cadffd;
+  background: radial-gradient(circle at 50% 30%, #e0dada 0%, #ffffff 85%, #ffffff 100%);
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  width: 100vw;
+}
+
+.controls-panel {
+  width: 280px;
+  min-width: 184px;
+  max-width: 95vw;
+  background: #ffffffdb;
+  border-radius: 18px;
+  margin: 36px 22px 22px 0;
+  padding: 30px 19px 16px 19px;
+
+}
+
+h1 {
+  color: #000000;
+  font-size: 1.43em;
+  margin-bottom: 18px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.control-group {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.control-group label {
+  flex: 1;
+  color: #000000;
+  font-weight: 500;
+}
+
+input[type="range"] {
+  flex: 2;
+  accent-color: #070707;
+  height: 3px;
+  margin-right: 6px;
+}
+
+input[type="range"]:focus {
+  outline: 2px solid #101010;
+}
+
+#strength-value,
+#num-value,
+#speed-value {
+  min-width: 31px;
+  color: #000000;
+  text-align: right;
+  font-size: 1.08em;
+  font-weight: 600;
+}
+
+ .button-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 13px;
+    }
+    button {
+      font-size: 1em;
+      background: #14bde7;
+      color: #251620;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #233c4640;
+      transition: background 0.2s;
+    }
+    button:disabled {
+      background: #484d6b;
+      color: #b2c1cc;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      
+      color: #163d2a;}
+
+.info-panel {
+  margin: 8px 0 8px 0;
+  padding: 10px;
+  background: #c7c5cfbb;
+  border-radius: 10px;
+  color: #101010;
+  font-size: 1.09em;
+  min-height: 48px;
+  box-shadow: 0 0 10px #735ec326;
+}
+
+.explanation {
+  background: #ffffffcc;
+  margin-top: 17px;
+  padding: 15px 16px 10px 15px;
+  border-radius: 9px;
+  color: #000000;
+  font-size: 1em;
+}
+
+.explanation h2 {
+  color: #000000;
+  font-size: 1.07em;
+  margin: 0 0 2px 0;
+}
+
+.explanation ul {
+  margin: 7px 0 0 0;
+  padding-left: 18px;
+  color: #000000;
+}
+
+.canvas-panel {
+  flex: 1;
+  min-width: 220px;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 32px 0 0 0;
+}
+
+#space-canvas {
+  background: #0b0823;
+  border-radius: 14px;
+  margin: 0 auto;
+  display: block;
+  box-shadow: 0 7px 33px #48154650, 0 1px 9px #7a62fa22;
+}
+
+@media (max-width:900px) {
+  .container { flex-direction: column; align-items: center; width: 99vw; }
+  .controls-panel { margin: 28px auto 0 auto;}
+  .canvas-panel { margin: 25px auto 0px auto;}
+}
+@media (max-width:650px) {
+  #space-canvas { width: 96vw; height: 72vw; max-width: 600px; }
+  .canvas-panel { max-width: 96vw; }
+  .controls-panel { max-width: 98vw;}
+}</style>
+</head>
+<body>
+     <button class="back-btn" style="margin-bottom:2em;">← Back to Dashboard</button>
+  <div class="container">
+    <aside class="controls-panel">
+      <h1>Black Hole Simulator
+      </h1>
+      <div class="control-group">
+        <label for="strength-slider">Black Hole Strength</label>
+        <input type="range" id="strength-slider" min="50" max="700" value="220">
+        <span id="strength-value">220</span>
+      </div>
+      <div class="control-group">
+        <label for="num-slider">Number of Objects</label>
+        <input type="range" id="num-slider" min="5" max="90" value="35">
+        <span id="num-value">35</span>
+      </div>
+      <div class="control-group">
+        <label for="speed-slider">Object Speed</label>
+        <input type="range" id="speed-slider" min="0" max="7" value="2">
+        <span id="speed-value">2</span>
+      </div>
+      <div class="buttons">
+        <button id="start-btn">Start Simulation</button>
+        <button id="reset-btn">Reset</button>
+      </div>
+      <div id="info-panel" class="info-panel"></div>
+      <div class="explanation">
+        <h2>Black Holes & Gravity</h2>
+        <p>A black hole is a region in space with extremely strong gravity.</p>
+        <ul>
+          <li>It pulls objects toward its center</li>
+          <li>Closer objects experience stronger force</li>
+          <li>Objects can orbit before falling in</li>
+        </ul>
+      </div>
+    </aside>
+    <main class="canvas-panel">
+      <canvas id="space-canvas" width="600" height="440"></canvas>
+    </main>
+  </div>
+  <script>// === Black Hole Simulator: JS ===
+
+const canvas = document.getElementById('space-canvas');
+const ctx = canvas.getContext('2d');
+
+// Controls
+const strengthSlider = document.getElementById('strength-slider');
+const numSlider = document.getElementById('num-slider');
+const speedSlider = document.getElementById('speed-slider');
+const strengthVal = document.getElementById('strength-value');
+const numVal = document.getElementById('num-value');
+const speedVal = document.getElementById('speed-value');
+const startBtn = document.getElementById('start-btn');
+const resetBtn = document.getElementById('reset-btn');
+const infoPanel = document.getElementById('info-panel');
+
+// Physics/State
+let objects = [];
+let running = false;
+let blackHoleStrength = +strengthSlider.value;
+let initObjectCount = +numSlider.value;
+let initObjectSpeed = +speedSlider.value;
+
+// Black hole center
+function getCenter() {
+  return { x: canvas.width/2, y: canvas.height/2 };
+}
+
+// Util
+function randColor() {
+  // Pastel blue, purple, white, cold yellow for stars
+  const colors = ["#eaf7ff", "#bdc7ff", "#e7baff", "#ffc1ba", "#ffe3a6", "#ffe9cc", "#b0c3ff", "#f7c1fd"];
+  return colors[ Math.floor(Math.random()*colors.length) ];
+}
+
+// Create one object/star/particle
+function createObject(x, y, vx, vy) {
+  return {
+    x: x,
+    y: y,
+    vx: vx,
+    vy: vy,
+    color: randColor(),
+    history: [] // for trails
+  };
+}
+
+// Create initial field
+function setupObjects() {
+  objects = [];
+  let {x:cx, y:cy} = getCenter();
+  let count = initObjectCount;
+  let speed = initObjectSpeed;
+  for (let i = 0; i < count; i++) {
+    // Place around a circle around the black hole, randomize orbital direction
+    let theta = Math.random() * Math.PI * 2;
+    let radius = 120 + Math.random()*120;
+    let x = cx + Math.cos(theta) * radius;
+    let y = cy + Math.sin(theta) * radius;
+    // Give perpendicular velocity for orbit
+    let angleV = theta + Math.PI/2 + (Math.random()-0.5)*0.5;
+    let spd = 1.1 + speed*Math.random();
+    let vx = Math.cos(angleV) * spd;
+    let vy = Math.sin(angleV) * spd;
+    objects.push(createObject(x, y, vx, vy));
+  }
+}
+
+// Core gravity and movement
+function updateObjects() {
+  let {x:cx, y:cy} = getCenter();
+  for (let obj of objects) {
+    let dx = cx - obj.x;
+    let dy = cy - obj.y;
+    let distSq = dx*dx + dy*dy;
+    let dist = Math.sqrt(distSq) + 0.2;
+    // F = G*m1*m2/r^2 (m is 1); Use strength as G.
+    let force = blackHoleStrength / distSq;
+    // Cap the maximum force
+    if(force > 0.23) force = 0.23;
+    // Acceleration toward center
+    let ax = force * dx / dist;
+    let ay = force * dy / dist;
+    obj.vx += ax;
+    obj.vy += ay;
+    // Move
+    obj.x += obj.vx;
+    obj.y += obj.vy;
+    // Save to history for trails
+    obj.history.push({x:obj.x, y:obj.y});
+    if(obj.history.length > 32) obj.history.shift();
+  }
+  // Remove objects close to the center (event horizon)
+  let eventHorizon = 29 + blackHoleStrength/90;
+  objects = objects.filter(obj => {
+    let dx = cx - obj.x, dy = cy - obj.y;
+    return (dx*dx + dy*dy) > (eventHorizon*eventHorizon);
+  });
+}
+
+// Main draw
+function drawScene() {
+  // Faint fade for trails ("trail effect")
+  ctx.globalAlpha = 0.16;
+  ctx.fillStyle = "#120929";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.globalAlpha = 1.0;
+  // Accretion disk (optional)
+  let c = getCenter();
+  let accDiskOuter = 48 + blackHoleStrength/16, accDiskInner = 18 + blackHoleStrength/90;
+  let grad = ctx.createRadialGradient(c.x, c.y, accDiskInner, c.x, c.y, accDiskOuter);
+  grad.addColorStop(0, "rgba(255,255,255,0.03)");
+  grad.addColorStop(0.25, "rgba(255,220,180,0.085)");
+  grad.addColorStop(0.44, "rgba(106,69,219,0.18)");
+  grad.addColorStop(0.8, "rgba(197,110,255,0.13)");
+  grad.addColorStop(1, "rgba(12,8,32,0.0)");
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, accDiskOuter, 0, Math.PI*2);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.filter = "blur(2.6px)";
+  ctx.globalAlpha = 1;
+  ctx.fill();
+  ctx.restore();
+  // Black hole
+  ctx.save();
+  let blackHoleRadius = 15 + blackHoleStrength/32;
+  let blackGrad = ctx.createRadialGradient(c.x, c.y, blackHoleRadius, c.x, c.y, blackHoleRadius+15);
+  blackGrad.addColorStop(0, "#2f1e4a");
+  blackGrad.addColorStop(0.64, "#080616");
+  blackGrad.addColorStop(1, "rgba(38,0,50,0.04)");
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, blackHoleRadius+18, 0, Math.PI*2);
+  ctx.fillStyle = "rgba(58,46,114,0.13)";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, blackHoleRadius+6, 0, Math.PI*2);
+  ctx.fillStyle = blackGrad;
+  ctx.filter = "blur(2.6px)";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, blackHoleRadius, 0, Math.PI*2);
+  ctx.fillStyle = "#000";
+  ctx.filter = "none";
+  ctx.globalAlpha = 0.7;
+  ctx.fill();
+  ctx.restore();
+  // Draw objects
+  for (const obj of objects) {
+    // Trail
+    if (obj.history.length > 4) {
+      ctx.save();
+      ctx.beginPath();
+      for (let i = 0; i < obj.history.length; i++) {
+        let p = obj.history[i];
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = obj.color;
+      ctx.globalAlpha = 0.22;
+      ctx.lineWidth = 1.7;
+      ctx.shadowBlur = 13;
+      ctx.shadowColor = obj.color;
+      ctx.stroke();
+      ctx.restore();
+    }
+    // Object/star point
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(obj.x, obj.y, 2, 0, Math.PI*2);
+    ctx.fillStyle = obj.color;
+    ctx.globalAlpha = 0.93;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = obj.color;
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// Animation loop
+function drawLoop() {
+  if (running) {
+    updateObjects();
+    drawScene();
+    updateInfoPanel();
+    requestAnimationFrame(drawLoop);
+  }
+}
+
+// Info panel updater
+function updateInfoPanel() {
+  infoPanel.innerHTML = 
+    `<b>Status:</b> <span style="color:#ccf">${running ? "Running" : "Paused"}</span><br>` +
+    `<b>Strength:</b> ${blackHoleStrength} &nbsp; <b>Objects:</b> ${objects.length}`;
+}
+
+// Event listeners
+strengthSlider.addEventListener('input', () => {
+  blackHoleStrength = +strengthSlider.value;
+  strengthVal.textContent = blackHoleStrength;
+  if (!running) drawScene();
+});
+numSlider.addEventListener('input', () => {
+  initObjectCount = +numSlider.value;
+  numVal.textContent = initObjectCount;
+});
+speedSlider.addEventListener('input', () => {
+  initObjectSpeed = +speedSlider.value;
+  speedVal.textContent = initObjectSpeed;
+});
+
+// Start simulation
+startBtn.addEventListener('click', () => {
+  running = true;
+  blackHoleStrength = +strengthSlider.value;
+  initObjectCount = +numSlider.value;
+  initObjectSpeed = +speedSlider.value;
+  setupObjects();
+  drawLoop();
+});
+
+// Reset simulation
+resetBtn.addEventListener('click', () => {
+  running = false;
+  setupObjects();
+  drawScene();
+  updateInfoPanel();
+});
+
+// Add objects on canvas click
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const y = (e.clientY - rect.top)  * (canvas.height / rect.height);
+  let c = getCenter();
+  // Calculate basic tangential velocity to black hole
+  let dx = x - c.x, dy = y - c.y;
+  let dist = Math.sqrt(dx*dx+dy*dy)+0.1;
+  let speed = 2 + initObjectSpeed * 0.12;
+  let tang = Math.atan2(dy, dx) + Math.PI/2;
+  let vx = Math.cos(tang) * speed * (0.7 + Math.random()*0.8);
+  let vy = Math.sin(tang) * speed * (0.7 + Math.random()*0.8);
+  objects.push(createObject(x, y, vx, vy));
+  if (!running) {
+    // Draw the added object statically
+    drawScene();
+    updateInfoPanel();
+  }
+});
+
+// Draw once on load
+function initial() {
+  blackHoleStrength = +strengthSlider.value;
+  initObjectCount = +numSlider.value;
+  initObjectSpeed = +speedSlider.value;
+  setupObjects();
+  drawScene();
+  updateInfoPanel();
+}
+initial();
+
+document.addEventListener('DOMContentLoaded', function () {
+    var backBtn = document.querySelector('.back-btn');
+    if (backBtn) {
+      alert('Back button detected'); // should show when page loads!
+      backBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        alert('Going back to main.html'); // should show on click
+        window.location.href = 'index.html';
+      });
+    } else {
+      alert('Back button NOT detected'); // if you see this, your selector is wrong!
+    }
+  });
+</script>
+</body>
+</html>
