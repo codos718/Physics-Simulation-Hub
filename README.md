@@ -81,6 +81,16 @@ A fun particle-based simulation showing how energy spreads outward during an exp
 
 # Black Hole Simulator
 Visualizes how gravity pulls objects toward a black hole and how motion changes near extreme gravity.
+*User Interaction
+- Allow user to click anywhere on canvas:
+ - Add new object at that position
+
+*What this teaches
+Based on-Black Hole
+-Gravity increases when distance decreases
+-Objects spiral inward
+-Orbit- collapse
+
 
 # Chain Reaction Machine
 A sequence-based simulation where one event triggers another, showing how energy transfers through a system.
