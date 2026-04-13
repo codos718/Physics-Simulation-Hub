@@ -1,7 +1,7 @@
 # Physics-Simulation-Hub
 Physics Simulation Hub is an interactive web-based learning platform that brings physics concepts to life through visual simulations. Instead of only reading theory, users can explore and understand physics by interacting with real-time models directly in the browser.
 
-The project contains 9 different simulations covering major topics in physics such as motion, forces, waves, electricity, magnetism, optics, and modern physics concepts.
+The project contains 7 different simulations covering major topics in physics such as motion, forces, waves, electricity and magnetism
 
 # Included Simulations
  # Projectile Motion Simulator
@@ -74,10 +74,6 @@ Based on-Magnetic Force you see
 Attraction vs repulsion
 Distance effect
 Field interaction
-
-
-# Explosion Physics Sandbox
-A fun particle-based simulation showing how energy spreads outward during an explosion.
 
 # Black Hole Simulator
 Visualizes how gravity pulls objects toward a black hole and how motion changes near extreme gravity.
